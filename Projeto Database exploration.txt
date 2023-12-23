@@ -1,0 +1,95 @@
+Projeto: Database exploration
+https://discuss.codecademy.com/t/data-science-independent-project-2-explore-a-sample-database/419945
+
+Descrição:
+
+You are the lead data analyst for a popular music store. Help them analyze their sales and service! Download the SQLite sample database provided
+
+
+Queries:
+
+Quais faixas apareceram na maioria das playlists? em quantas playlists eles apareceram?
+
+select pt.TrackId, t.Name, count(PlaylistId) as Total 
+from playlist_track pt
+inner join tracks t
+on pt.TrackId = t.TrackId
+group by pt.TrackId, t.name
+order by total desc
+limit 10;
+
+3403	Intoitus: Adorate Deum	5
+3404	Miserere mei, Deus	5
+3408	Aria Mit 30 Veränderungen, BWV 988 "Goldberg Variations": Aria	5
+3409	Suite for Solo Cello No. 1 in G Major, BWV 1007: I. Prélude	5
+3410	The Messiah: Behold, I Tell You a Mystery... The Trumpet Shall Sound	5
+3411	Solomon HWV 67: The Arrival of the Queen of Sheba	5
+3415	Symphony No.5 in C Minor: I. Allegro con brio	5
+3416	Ave Maria	5
+3417	Nabucco: Chorus, "Va, Pensiero, Sull'ali Dorate"	5
+3418	Die Walküre: The Ride of the Valkyries	5
+
+Limitei a query as 10 faixas que mais aparecem. Todas elas aparecem em no minimo 5 playlists diferentes. 
+
+Qual faixa gerou mais receita? qual álbum? qual gênero?
+
+select iv.TrackId, t.Name, count(Quantity) as Total
+from invoice_items iv
+inner join tracks t
+on iv.TrackId =  t.TrackId
+group by iv.TrackId, t.name
+order by total desc;
+
+Este código retorna as músicas com mais vendas.
+
+select a.AlbumId, a.Title, count(Quantity) as Total
+from invoice_items iv
+left join tracks t
+on iv.TrackId = t.TrackId
+left join albums a
+on a.AlbumId = t.AlbumId
+group by a.AlbumId, a.Title
+order by total desc
+limit 10;
+
+Este, os albums com musicas mais vendidas.
+
+
+select g.GenreId, g.Name, count(Quantity) as Total
+from invoice_items iv
+left join tracks t
+on iv.TrackId =  t.TrackId
+left join genres g
+on g.GenreId = t.GenreId
+group by g.GenreId, g.name
+order by total desc
+limit 10;
+
+Por fim, este retorna os 10 generos musicas com mais vendas.
+
+
+Quais países têm a maior receita de vendas? Que porcentagem da receita total cada país representa?
+
+Segue o código usado e os 10 países com a maior porcentagem:
+
+select i.BillingCountry, count(Quantity) as Total, round((count(Quantity) * 100.0) / (select sum(Quantity) from invoice_items), 2) as Percentage
+from invoices i 
+left join invoice_items iv
+on i.InvoiceId = iv.InvoiceId
+group by i.BillingCountry
+order by total desc;
+
+
+Quantos clientes cada funcionário atendeu, qual é a receita média de cada venda e qual é a venda total?
+
+Aqui está as informações de acordo com o maior para o menor numero de clientes.
+
+select e.EmployeeId, e.FirstName, e.LastName, count(i.CustomerId) as client_qtd, round(avg(i.Total), 2) as avg, round(sum(i.Total), 2) as total 
+from employees e
+inner join invoices i
+on i.CustomerId = c.CustomerId
+inner join customers c
+on e.EmployeeId = c.SupportRepId
+group by e.EmployeeId
+order by client_qtd desc;
+
